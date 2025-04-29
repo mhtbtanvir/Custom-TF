@@ -1,32 +1,61 @@
-# ATRT: Attention-Regularized Transformer for Text Classification
+# ATRT – Adaptive Token Ranking and Transformation
 
-A lightweight Transformer model built from scratch in TensorFlow with a custom attention mechanism designed to improve convergence and training stability. The model was tested on the IMDb movie reviews dataset for binary sentiment classification.
+A custom attention-regularized Transformer model built from scratch in TensorFlow for text classification. ATRT introduces a novel adaptive attention mechanism to rank and scale token importance dynamically, improving convergence and generalization.
 
-## ✨ Highlights
+## 🔍 What is ATRT?
 
-- ✅ **Custom Transformer Architecture** built from scratch using TensorFlow
-- 🧠 **Gaussian-Scaled Multi-Head Attention** for improved focus and early convergence
-- 📈 Achieved **78% test accuracy** on the IMDb dataset
-- ⚙️ Implemented **dynamic positional encoding**, dropout, and regularization
-- 🧪 Modular and readable code using **TensorFlow Datasets** and `TextVectorization`
+**ATRT** is an adaptive attention mechanism that ranks and transforms token importance using **Gaussian smoothing** based on the global mean (μ) and standard deviation (σ) of attention weights.
 
-## 🗂️ Dataset
+### Token Importance Zones
 
-- **IMDb Reviews Dataset** (via `tensorflow_datasets`)
-- Binary sentiment classification: Positive or Negative
+Tokens are categorized into zones with corresponding scaling strategies:
 
-## 🏗️ Model Architecture
+| Zone                | Condition                  | Scaling Strategy        |
+|---------------------|----------------------------|-------------------------|
+| High Importance     | > μ + 1.5σ                 | Top-down decay (1.25–1.30) |
+| Moderate Importance | μ to μ + 1.5σ              | Centered smoothing (1.10–1.15) |
+| Baseline            | ≤ μ                        | Flat scaling (1.00)     |
 
-- Embedding + Positional Encoding  
-- Multiple Encoder Layers with:
-  - Gaussian-Scaled Multi-Head Attention
-  - Layer Normalization and Dropout
-  - Feedforward Neural Networks  
-- GlobalAveragePooling + Dense Sigmoid Output
+This approach encourages the model to emphasize contextually significant tokens while maintaining global coherence.
 
-## 🔬 Custom Attention: ATRT
+## 🛠 Task-Specific Customization
 
-Introduces a **Gaussian-based scaling** to standard attention weights, encouraging smoother and more stable convergence while preserving performance.
+ATRT is flexible and can be tailored to different tasks:
 
+- **Classification:** Stronger emphasis on top tokens (higher scaling in High Importance Zone).
+- **Summarization:** Smoother, broader scaling to highlight rare but critical tokens.
 
+Zone boundaries and scaling factors are adjustable based on task needs.
 
+---
+
+## 🧪 Performance Comparison
+
+| Metric                     | Base Transformer       | ATRT Transformer        |
+|----------------------------|------------------------|-------------------------|
+| **Training Accuracy (Epoch 1)** | 71.90%                 | 86.06%                  |
+| **Training Accuracy (Epoch 10)**| 98.79%                | 96.04%                  |
+| **Validation Accuracy (Avg)**   | ~95.20% (fluctuates)  | ~94–95% (stable)        |
+| **Test Accuracy**              | **94.96%**             | **95.32%**              |
+
+🔎 **Insight:**  
+- ATRT achieves **faster convergence in early epochs** and demonstrates **greater stability in validation accuracy**.  
+- Despite a slightly lower final training accuracy, ATRT outperforms the base Transformer in **generalization**, as shown by the higher test accuracy.
+
+---
+
+## ⚙️ Key Features
+
+- ✅ Custom Transformer architecture in **TensorFlow**
+- 🧠 **Gaussian-scaled multi-head attention** for adaptive token ranking
+- 📈 **Improved convergence** and **generalization**
+- 🧪 Uses **IMDb** dataset for binary sentiment classification
+- 📦 Built with `TextVectorization`, `tf.data`, and modular components in a **Jupyter Notebook**
+
+## 🚀 Getting Started
+
+```bash
+git clone https://github.com/yourusername/ATRT-Transformer.git
+cd ATRT-Transformer
+pip install -r requirements.txt  # optional
+jupyter notebook imdb_atrt.ipynb
